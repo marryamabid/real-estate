@@ -1,7 +1,5 @@
 export default function SignIn() {
   return (
-    <div>
-      <h2>Sign in</h2>
-    </div>
+    <div className="flex items-center justify-center h-screen bg-gray-100"></div>
   );
 }
