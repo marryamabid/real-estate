@@ -1,33 +1,46 @@
 import { useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
+import {
+  signInStart,
+  signInFailure,
+  signInSuccess,
+} from "../redux/store/user/user";
+import { useDispatch, useSelector } from "react-redux";
 
 export default function SignIp() {
   const [formData, setFormData] = useState({});
-  const [error, setError] = useState(null); // State to handle errors
-  const [loading, setLoading] = useState(false); // State to handle loading state
+
   const navigate = useNavigate(); // Hook to programmatically navigate
+
+  const dispatch = useDispatch(); // Hook to access the Redux store
+  const { loading, error } = useSelector((state) => state.user); // Access the user state from
+
   function handleChange(e) {
     const { id, value } = e.target; // Destructure id and value from the event target
     setFormData((prev) => ({ ...prev, [id]: value })); // Update the state with the new value
     console.log(formData); // For debugging purposes, can be removed later
   }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true); // Start loading
-    setError(null); // Reset error state
+    dispatch(signInStart());
     try {
       const result = await axios.post(
         "http://localhost:3000/api/auth/signin",
         formData
       );
-      console.log(result);
-      setFormData({}); // Reset form data after successful submission
+      if (result.data.success === false) {
+        dispatch(signInFailure(result.data.message));
+        return;
+      }
+      console.log(result.data);
+      dispatch(signInSuccess(result.data)); // Dispatch success action with user data
       navigate("/"); // Navigate to sign-in page after successful signup
-    } catch (error) {
-      setError(error.message);
-    } finally {
-      setLoading(false); // Always stop loading after try/catch
+    } catch (err) {
+      console.log(err);
+      const errorMsg = err.response?.data?.message || "Something went wrong";
+      dispatch(signInFailure(errorMsg));
     }
   };
   return (

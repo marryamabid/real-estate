@@ -1,6 +1,8 @@
 import User from "../models/user.model.js";
+import errorhandler from "../utils/errorHandler.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+
 export const signupController = async (req, res, next) => {
   const { username, email, password } = req.body;
   const bcryptSalt = await bcrypt.genSalt(10);
@@ -22,11 +24,11 @@ export const signinController = async (req, res, next) => {
   try {
     const validUser = await User.findOne({ email });
     if (!validUser) {
-      return next(404, "User not found");
+      return next(errorhandler(404, "User not found"));
     }
     const isPasswordValid = await bcrypt.compare(password, validUser.password);
     if (!isPasswordValid) {
-      return next(400, "Wrong credentials!");
+      return next(errorhandler(400, "Wrong credentials!"));
     }
     const token = jwt.sign({ id: validUser._id }, process.env.JWT_SECRET);
     const { password: _, ...userData } = validUser._doc; // Exclude password from user data
