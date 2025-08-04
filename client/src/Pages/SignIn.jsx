@@ -1,11 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
-import {
-  signInStart,
-  signInFailure,
-  signInSuccess,
-} from "../redux/store/user/user";
+import { signInStart, signInFailure, signInSuccess } from "../redux/user/user";
 import { useDispatch, useSelector } from "react-redux";
 
 export default function SignIp() {
@@ -38,14 +34,13 @@ export default function SignIp() {
       dispatch(signInSuccess(result.data)); // Dispatch success action with user data
       navigate("/"); // Navigate to sign-in page after successful signup
     } catch (err) {
-      console.log(err);
       const errorMsg = err.response?.data?.message || "Something went wrong";
       dispatch(signInFailure(errorMsg));
     }
   };
   return (
     <div className="p-3 max-w-lg mx-auto">
-      <h1 className="text-3xl text-center font-semibold my-7">Sign Up</h1>
+      <h1 className="text-3xl text-center font-semibold my-7">Sign In</h1>
       <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
         <input
           className="border p-3 rounded-lg"
