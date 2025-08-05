@@ -1,8 +1,13 @@
 import { useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
-import { signInStart, signInFailure, signInSuccess } from "../redux/user/user";
+import {
+  signInStart,
+  signInFailure,
+  signInSuccess,
+} from "../redux/user/userSlice";
 import { useDispatch, useSelector } from "react-redux";
+import Oauth from "../Components/Oauth";
 
 export default function SignIp() {
   const [formData, setFormData] = useState({});
@@ -62,6 +67,7 @@ export default function SignIp() {
         >
           {loading ? "Loading..." : "Sign In"}
         </button>
+        <Oauth />
       </form>
       <div className="flex gap-2 mt-5">
         <p>Dont have an account?</p>
