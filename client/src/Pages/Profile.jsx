@@ -1,25 +1,26 @@
 import { useSelector } from "react-redux";
 import { useRef, useState } from "react";
 import axios from "axios";
+import { set } from "mongoose";
 export default function Profile() {
   const { currentUser } = useSelector((state) => state.user);
+  const [formData, setFormData] = useState({});
   const [uploadPercent, setUploadPercent] = useState(0);
   const [fileUploadError, setFileUploadError] = useState(false);
-  const [imageURL, setImageURL] = useState(currentUser?.profileImage || "");
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef(null);
 
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", "profile_upload");
+    const formImage = new FormData();
+    formImage.append("file", file);
+    formImage.append("upload_preset", "profile_upload");
     try {
       setUploading(true);
       const response = await axios.post(
         "https://api.cloudinary.com/v1_1/df14gd1tp/image/upload",
-        formData,
+        formImage,
         {
           onUploadProgress: (progressEvent) => {
             const percentCompleted = Math.round(
@@ -30,7 +31,8 @@ export default function Profile() {
         }
       );
       console.log(response);
-      setImageURL(response.data.secure_url);
+      setFormData({ ...formData, profileImage: response.data.secure_url });
+
       setUploading(false);
     } catch (err) {
       console.error("Cloudinary upload failed:", err);
@@ -38,6 +40,11 @@ export default function Profile() {
     } finally {
       setUploading(false);
     }
+  };
+
+  const handleUpdateChange = (e) => {
+    const { id, value } = e.target;
+    setFormData((prev) => ({ ...prev, [id]: value }));
   };
   return (
     <div className="p-3 max-w-lg mx-auto">
@@ -56,7 +63,7 @@ export default function Profile() {
               fileInputRef.current.click();
             }
           }}
-          src={imageURL || currentUser?.profileImage}
+          src={currentUser?.profileImage || formData}
           alt="profile"
           className="rounded-full h-24 w-24 object-cover cursor-pointer self-center mt-2"
         />
@@ -78,18 +85,24 @@ export default function Profile() {
           placeholder="username"
           id="username"
           className="border p-3 rounded-lg"
+          defaultValue={currentUser?.username}
+          onChange={handleUpdateChange}
         />
         <input
           type="email"
           placeholder="email"
           id="email"
           className="border p-3 rounded-lg"
+          defaultValue={currentUser?.email}
+          onChange={handleUpdateChange}
         />
         <input
           type="password"
           placeholder="password"
           id="password"
           className="border p-3 rounded-lg"
+          defaultValue={currentUser?.password}
+          onChange={handleUpdateChange}
         />
         <button className="bg-slate-700 text-white rounded-lg p-3 uppercase hover:opacity-95 disabled:opacity-80">
           {uploading && (
