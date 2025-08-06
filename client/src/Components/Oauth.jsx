@@ -3,7 +3,9 @@ import { app } from "../firebase";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { signInSuccess } from "../redux/user/userSlice";
+import { useNavigate } from "react-router-dom";
 export default function Oauth() {
+  const navigate = useNavigate(); // Hook to navigate programmatically
   const dispatch = useDispatch(); // Hook to access the Redux store
   async function handleGoogleClick() {
     try {
@@ -18,6 +20,7 @@ export default function Oauth() {
         profileImage: result.user.photoURL,
       });
       dispatch(signInSuccess(res.data)); // Dispatch success action with user data
+      navigate("/profile"); // Navigate to the profile page
       console.log("response from backend", res.data);
     } catch (error) {
       console.error("Error during Google Sign-In:", error);
