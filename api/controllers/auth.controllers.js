@@ -32,9 +32,17 @@ export const signinController = async (req, res, next) => {
     }
     const token = jwt.sign({ id: validUser._id }, process.env.JWT_SECRET);
     const { password: _, ...userData } = validUser._doc; // Exclude password from user data
-    res.status(200).cookie("token", token, { httpOnly: true }).json(userData);
+    res
+      .status(200)
+      .cookie("token", token, {
+        httpOnly: true,
+        secure: false, // required for HTTPS
+        sameSite: "Lax",
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      })
+      .json(userData);
   } catch (error) {
-    next(errorhandler(error));
+    next(errorhandler(401, error.message));
   }
 };
 
@@ -62,9 +70,19 @@ export const googleController = async (req, res, next) => {
         password: hashedPassword,
         profileImage,
       });
+      await newUser.save();
       const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET);
       const { password: _, ...userData } = newUser._doc; // Exclude password from user data
-      res.status(201).cookie("token", token, { httpOnly: true }).json(userData);
+      console.log("User signed in successfully with google:", userData);
+      res
+        .status(200)
+        .cookie("token", token, {
+          httpOnly: true,
+          secure: false, // required for HTTPS
+          sameSite: "Lax",
+          maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        })
+        .json(userData);
     }
   } catch (error) {
     console.log("Google Auth Error:", error);

@@ -2,6 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import Oauth from "../Components/Oauth";
+import { set } from "mongoose";
 
 export default function SignUp() {
   const [formData, setFormData] = useState({});
@@ -18,17 +19,24 @@ export default function SignUp() {
     setLoading(true); // Start loading
     setError(null); // Reset error state
     try {
-      const result = await axios.post(
-        "http://localhost:3000/api/auth/signup",
-        formData
-      );
-      console.log(result);
-      setFormData({}); // Reset form data after successful submission
+      const response = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData), // Send form data as JSON
+      });
+      const data = await response.json();
+      if (data.success === false) {
+        setError(data.message); // Handle error from response
+        setLoading(false);
+        return;
+      }
+      setLoading(false);
+      console.log("Signup response:", data); // Log the response for debuggin
       navigate("/sign-in"); // Navigate to sign-in page after successful signup
     } catch (error) {
       setError(error.message);
-    } finally {
-      setLoading(false); // Always stop loading after try/catch
     }
   };
   return (

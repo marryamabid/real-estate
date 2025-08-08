@@ -2,10 +2,24 @@ import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cors from "cors";
-dotenv.config();
 import cookieParser from "cookie-parser";
+const PORT = 3000;
+
+const app = express();
+dotenv.config();
+
 import userRoutes from "./routes/user.routes.js";
 import authRoutes from "./routes/auth.routes.js";
+
+const allowedOrigins = [
+  "http://localhost:5173", // for dev
+];
+app.use(
+  cors({
+    origin: allowedOrigins, // allow all origins
+    credentials: true, // cannot use `true` with "*"
+  })
+);
 mongoose
   .connect(process.env.MONGO)
   .then(() => {
@@ -14,12 +28,12 @@ mongoose
   .catch((err) => {
     console.log("Error connecting to MongoDB:", err);
   });
-const app = express();
-app.use(cors());
+
 app.use(express.json());
 app.use(cookieParser());
-app.use("/api/user", userRoutes);
+
 app.use("/api/auth", authRoutes);
+app.use("/api/user", userRoutes);
 
 app.use((err, req, res, next) => {
   console.error("Caught Error:", err);
@@ -27,4 +41,6 @@ app.use((err, req, res, next) => {
   const message = err.message || "Internal Server Error";
   return res.status(statusCode).json({ message, success: false, statusCode });
 });
-app.listen(3000);
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});

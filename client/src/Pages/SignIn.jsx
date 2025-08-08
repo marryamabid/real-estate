@@ -20,27 +20,30 @@ export default function SignIp() {
   function handleChange(e) {
     const { id, value } = e.target; // Destructure id and value from the event target
     setFormData((prev) => ({ ...prev, [id]: value })); // Update the state with the new value
-    console.log(formData); // For debugging purposes, can be removed later
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    dispatch(signInStart());
     try {
-      const result = await axios.post(
-        "http://localhost:3000/api/auth/signin",
-        formData
-      );
-      if (result.data.success === false) {
-        dispatch(signInFailure(result.data.message));
+      dispatch(signInStart());
+      const res = await fetch("/api/auth/signin", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include", // include cookies for auth
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      console.log(data);
+      if (data.success === false) {
+        dispatch(signInFailure(data.message));
         return;
       }
-      console.log(result.data);
-      dispatch(signInSuccess(result.data)); // Dispatch success action with user data
-      navigate("/"); // Navigate to sign-in page after successful signup
-    } catch (err) {
-      const errorMsg = err.response?.data?.message || "Something went wrong";
-      dispatch(signInFailure(errorMsg));
+      dispatch(signInSuccess(data));
+      navigate("/");
+    } catch (error) {
+      dispatch(signInFailure(error.message));
     }
   };
   return (

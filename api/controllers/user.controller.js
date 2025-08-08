@@ -19,6 +19,7 @@ export const updateUserController = async (req, res, next) => {
       { $set: updateFields },
       { new: true }
     );
+    await updateUser.save();
     const { password: _, ...userDetails } = updateUser._doc;
     return res.status(200).json({
       message: "User updated successfully",
@@ -26,6 +27,6 @@ export const updateUserController = async (req, res, next) => {
       user: userDetails,
     });
   } catch (error) {
-    return next(errorHandler(error));
+    return next(errorHandler(500, error.message));
   }
 };
