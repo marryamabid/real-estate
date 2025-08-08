@@ -5,7 +5,11 @@ import {
   updateUserStart,
   updateUserSuccess,
   updateUserFailure,
+  deleteUserFailure,
+  deleteUserStart,
+  deleteUserSuccess,
 } from "../redux/user/userSlice";
+import { data } from "react-router-dom";
 
 export default function Profile() {
   const dispatch = useDispatch();
@@ -83,7 +87,6 @@ export default function Profile() {
       }
       console.log("Updated user data:", data.user);
       dispatch(updateUserSuccess(data.user));
-      setUpdateSuccess(true);
     } catch (error) {
       dispatch(updateUserFailure(error.message));
     }
@@ -96,6 +99,25 @@ export default function Profile() {
       return () => clearTimeout(timeout);
     }
   }, [updateSuccess]);
+
+  const handleUserDelete = async () => {
+    try {
+      deleteUserStart();
+      const res = await fetch(`/api/user/delete/${currentUser._id}`, {
+        method: "DELETE",
+        credentials: "include", // include cookies for auth
+      });
+      const data = await res.json();
+      if (data.success === false) {
+        deleteUserFailure(data.message);
+        return;
+      }
+      alert(data.message);
+      dispatch(deleteUserSuccess(data));
+    } catch (error) {
+      deleteUserFailure(error.message);
+    }
+  };
 
   return (
     <div className="p-3 max-w-lg mx-auto">
@@ -164,26 +186,26 @@ export default function Profile() {
         {/* Submit button */}
         <button
           type="submit"
-          disabled={loading || (uploadPercent > 0 && uploadPercent < 100)}
+          disabled={loading}
           className="bg-slate-700 text-white rounded-lg p-3 uppercase hover:opacity-95 disabled:opacity-80"
         >
           {loading ? "Updating..." : "Update"}
         </button>
       </form>
-
-      {/* Messages */}
-      <div className="flex flex-col mt-5">
-        {error && <p className="text-red-700">{error}</p>}
-        {updateSuccess && (
-          <p className="text-green-700">User updated successfully!</p>
-        )}
-      </div>
-
       {/* Placeholder actions */}
       <div className="flex justify-between mt-5">
-        <span className="text-red-700 cursor-pointer">Delete Account</span>
+        <span
+          onClick={handleUserDelete}
+          className="text-red-700 cursor-pointer"
+        >
+          Delete Account
+        </span>
         <span className="text-red-700 cursor-pointer">Sign Out</span>
       </div>
+      {error && <p className="text-red-500 mt-2">{error}</p>}
+      {updateSuccess && (
+        <p className="text-green-700">User updated successfully!</p>
+      )}
     </div>
   );
 }
