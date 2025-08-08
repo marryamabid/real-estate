@@ -89,3 +89,12 @@ export const googleController = async (req, res, next) => {
     next(errorhandler(error));
   }
 };
+
+export const signoutController = (req, res, next) => {
+  try {
+    res.clearCookie("token");
+    res.status(200).json({ message: "User signed out successfully" });
+  } catch (error) {
+    next(errorhandler(500, error.message));
+  }
+};
