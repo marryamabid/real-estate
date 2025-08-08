@@ -10,6 +10,7 @@ dotenv.config();
 
 import userRoutes from "./routes/user.routes.js";
 import authRoutes from "./routes/auth.routes.js";
+import listingRoutes from "./routes/listing.routes.js";
 
 const allowedOrigins = [
   "http://localhost:5173", // for dev
@@ -34,6 +35,7 @@ app.use(cookieParser());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
+app.use("/api/listing", listingRoutes);
 
 app.use((err, req, res, next) => {
   console.error("Caught Error:", err);
