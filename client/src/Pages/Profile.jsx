@@ -12,6 +12,7 @@ import {
   signoutUserSuccess,
 } from "../redux/user/userSlice";
 import { Link } from "react-router-dom";
+import { set } from "mongoose";
 
 export default function Profile() {
   const dispatch = useDispatch();
@@ -21,6 +22,8 @@ export default function Profile() {
   const [uploadPercent, setUploadPercent] = useState(0);
   const [fileUploadError, setFileUploadError] = useState(false);
   const [updateSuccess, setUpdateSuccess] = useState(false);
+  const [showListingError, setShowListingError] = useState(false);
+  const [showListing, setShowListing] = useState({});
 
   const fileInputRef = useRef(null);
 
@@ -135,7 +138,45 @@ export default function Profile() {
       console.error("Sign out failed:", error.message);
     }
   };
+  const handleShowListings = async () => {
+    try {
+      setShowListingError(false);
+      const res = await fetch(`/api/user/listings/${currentUser._id}`);
+      const data = await res.json();
+      if (data.success === false) {
+        setShowListingError(true);
+        console.log(data.message);
+        return;
+      }
+      console.log("User listings:", data.userListings);
+      setShowListing(data.userListings);
+      setShowListingError(false);
+    } catch (error) {
+      console.error("Error fetching listings:", error.message);
+      setShowListingError(true);
+    }
+  };
+  const deleteUserListing = async (listingId) => {
+    try {
+      const res = await fetch(`/api/listing/delete/${listingId}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
 
+      if (data.success === false) {
+        console.log(data.message);
+        return;
+      }
+
+      console.log(data);
+
+      setShowListing((prev) =>
+        prev.filter((listing) => listing._id !== listingId)
+      );
+    } catch (error) {
+      console.error(error.message);
+    }
+  };
   return (
     <div className="p-3 max-w-lg mx-auto">
       <h2 className="text-3xl font-semibold text-center my-4">Profile</h2>
@@ -230,6 +271,48 @@ export default function Profile() {
       {error && <p className="text-red-500 mt-2">{error}</p>}
       {updateSuccess && (
         <p className="text-green-700">User updated successfully!</p>
+      )}
+      <button onClick={handleShowListings} className="text-green-700 w-full">
+        Show Listings
+      </button>
+      {showListingError && (
+        <p className="text-red-500 mt-2">{showListingError}</p>
+      )}
+      {showListing && showListing.length > 0 && (
+        <div className="flex flex-col gap-4">
+          <h1 className="text-center mt-7 text-2xl font-semibold mb-2">
+            Your Listings
+          </h1>
+          {showListing.map((listing) => (
+            <div
+              key={listing._id}
+              className="border p-3 rounded-lg flex justify-between items-center"
+            >
+              <Link to={`/listing/${listing._id}`}>
+                <img
+                  src={listing.imageUrls[0]}
+                  alt="listing cover"
+                  className="h-16 w-16 object-contain"
+                />
+              </Link>
+              <Link
+                className="text-slate-700 font-semibold  hover:underline truncate flex-1"
+                to={`/listing/${listing._id}`}
+              >
+                <p>{listing.name}</p>
+              </Link>
+              <div className="flex flex-col item-center">
+                <button
+                  onClick={() => deleteUserListing(listing._id)}
+                  className="text-red-700"
+                >
+                  Delete
+                </button>
+                <button className="text-green-700">Edit</button>
+              </div>
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );
