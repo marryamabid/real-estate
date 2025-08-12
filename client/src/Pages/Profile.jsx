@@ -11,7 +11,7 @@ import {
   signoutUserStart,
   signoutUserSuccess,
 } from "../redux/user/userSlice";
-import { data } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 export default function Profile() {
   const dispatch = useDispatch();
@@ -208,6 +208,12 @@ export default function Profile() {
         >
           {loading ? "Updating..." : "Update"}
         </button>
+        <Link
+          className="bg-blue-700 text-center text-white rounded-lg p-3 uppercase hover:opacity-95 disabled:opacity-80"
+          to="/create-listing"
+        >
+          Create Listing
+        </Link>
       </form>
       {/* Placeholder actions */}
       <div className="flex justify-between mt-5">
