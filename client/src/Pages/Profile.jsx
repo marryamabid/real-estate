@@ -167,8 +167,6 @@ export default function Profile() {
         return;
       }
 
-      console.log(data);
-
       setShowListing((prev) =>
         prev.filter((listing) => listing._id !== listingId)
       );
