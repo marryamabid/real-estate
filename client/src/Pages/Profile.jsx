@@ -12,7 +12,6 @@ import {
   signoutUserSuccess,
 } from "../redux/user/userSlice";
 import { Link } from "react-router-dom";
-import { set } from "mongoose";
 
 export default function Profile() {
   const dispatch = useDispatch();
@@ -308,7 +307,9 @@ export default function Profile() {
                 >
                   Delete
                 </button>
-                <button className="text-green-700">Edit</button>
+                <Link to={`/edit-listing/${listing._id}`}>
+                  <button className="text-green-700">Edit</button>
+                </Link>
               </div>
             </div>
           ))}
