@@ -1,9 +1,10 @@
-import { set } from "mongoose";
 import { useState } from "react";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 export default function CreateListing() {
   const [files, setFiles] = useState([]);
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     imageUrls: [],
     name: "",
@@ -60,6 +61,10 @@ export default function CreateListing() {
           imageUrls: prev.imageUrls.concat(imageUrls),
         }));
         setImageUploadError(false);
+        setFormData((prev) => ({
+          ...prev,
+          imageUrls: [],
+        }));
         setUploading(false);
         console.log("Uploaded images:", imageUrls);
       } catch (error) {
@@ -125,6 +130,7 @@ export default function CreateListing() {
 
       console.log("Listing created successfully:", data);
       setLoading(false);
+      navigate(`/listing/${data._id}`);
     } catch (error) {
       setError("Failed to create listing");
       console.error("Error creating listing:", error.message);
