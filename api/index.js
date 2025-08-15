@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 const PORT = 3000;
+import path from "path";
 
 const app = express();
 dotenv.config();
@@ -29,13 +30,19 @@ mongoose
   .catch((err) => {
     console.log("Error connecting to MongoDB:", err);
   });
-
+const __dirname = path.resolve();
 app.use(express.json());
 app.use(cookieParser());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/listing", listingRoutes);
+
+app.use(express.static(path.join(__dirname, "/client/dist")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "client", "dist", "index.html"));
+});
 
 app.use((err, req, res, next) => {
   console.error("Caught Error:", err);
