@@ -275,6 +275,14 @@ export default function Profile() {
       {showListingError && (
         <p className="text-red-500 mt-2">{showListingError}</p>
       )}
+      {showListing.length === 0 && (
+        <div className="text-center">
+          <p className="text-lg text-red-300  font-medium">No listings found</p>
+          <p className="text-sm text-gray-400">
+            Start by creating your first listing.
+          </p>
+        </div>
+      )}
       {showListing && showListing.length > 0 && (
         <div className="flex flex-col gap-4">
           <h1 className="text-center mt-7 text-2xl font-semibold mb-2">

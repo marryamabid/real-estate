@@ -11,7 +11,6 @@ export default function Home() {
   const [saleListings, setSaleListings] = useState([]);
   const [rentListings, setRentListings] = useState([]);
   SwiperCore.use([Navigation]);
-  console.log(offerListings);
   useEffect(() => {
     const fetchOfferListings = async () => {
       try {
@@ -36,7 +35,7 @@ export default function Home() {
 
     const fetchSaleListings = async () => {
       try {
-        const res = await fetch("/api/listing/search?type=sale&limit=4");
+        const res = await fetch("/api/listing/search?type=sale&limit=3");
         const data = await res.json();
         setSaleListings(data);
       } catch (error) {
